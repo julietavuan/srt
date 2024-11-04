@@ -1,0 +1,17 @@
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/" # folder where requirements.txt is located
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    # requirements_cpu.txt
+    dependency-name: "requirements_cpu.txt"
+    
+  - package-ecosystem: "pip"
+    directory: "/" # same as requirements_gpu.txt
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    # requirements_gpu.txt
+    dependency-name: "requirements_gpu.txt"
