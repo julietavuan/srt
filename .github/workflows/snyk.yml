@@ -1,31 +1,32 @@
-name: Snyk Security Scan
+name: Snyk Scan
 
 on:
   pull_request:
     branches:
-      - master
+      - master  # Cambia 'master' por 'main' si usas 'main' como tu rama principal
 
 jobs:
   snyk:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Install Snyk CLI
-        run: npm install -g snyk
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
 
-      - name: Run Snyk to check for vulnerabilities
-        run: snyk test --all-sub-projects
+    - name: Install dependencies
+      run: |
+        pip install -r requirements_cpu.txt
+        pip install -r requirements_gpu.txt
 
-      - name: Snyk Monitor
-        run: snyk monitor
+    - name: Install Snyk CLI
+      run: npm install -g snyk
 
-      - name: Check Snyk test result
-        id: snyk-test
-        run: |
-          snyk test --all-sub-projects --json > snyk-results.json
-          if grep -q '"severity": "high"\|"severity": "critical"' snyk-results.json; then
-            echo "Critical vulnerabilities found! Failing the build."
-            exit 1
-          fi
+    - name: Run Snyk to check for vulnerabilities
+      run: |
+        snyk test --file=requirements_cpu.txt --package-manager=pip
+        snyk test --file=requirements_gpu.txt --package-manager=pip
