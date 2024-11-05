@@ -4,7 +4,7 @@ fda
 torch==2.0.0
 tqdm~=4.65.0
 protobuf<3.21
-mlflow==2.3.0
+mlflow==2.14.2
 pandas~=1.5.3
 faiss-gpu==1.7.2
 pynvml==11.5.0
