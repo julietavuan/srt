@@ -73,7 +73,7 @@ jobs:
         run: cyclonedx-cli --output sbom.json --format json --project "MyProject" --file requirements.txt
 
       - name: Upload SBOM as artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: sbom
           path: sbom.json
