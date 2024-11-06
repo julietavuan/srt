@@ -1,7 +1,7 @@
 name: Snyk Security
 env:
   SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-  
+
 on:
   push:
     branches: ["master"]
@@ -62,6 +62,21 @@ jobs:
       # Run Snyk Container analysis and monitor the Docker image
       - name: Snyk Container monitor
         run: snyk container monitor your/image-to-test --file=Dockerfile
+
+      # Step to generate SBOM with CycloneDX
+      - name: Install CycloneDX CLI
+        run: |
+          curl -sL https://github.com/CycloneDX/cyclonedx-cli/releases/download/v1.5.0/cyclonedx-cli-linux-x64.tar.gz | tar xz
+          sudo mv cyclonedx-cli /usr/local/bin
+
+      - name: Generate SBOM in CycloneDX format
+        run: cyclonedx-cli --output sbom.json --format json --project "MyProject" --file requirements.txt
+
+      - name: Upload SBOM as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: sbom
+          path: sbom.json
 
       # Upload the Snyk Code results into GitHub Code Scanning tab (SARIF format)
       - name: Upload result to GitHub Code Scanning
