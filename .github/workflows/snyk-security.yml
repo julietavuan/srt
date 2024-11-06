@@ -24,7 +24,7 @@ jobs:
 
       # Set up Snyk CLI to check for security issues
       - name: Set up Snyk CLI to check for security issues
-        uses: snyk/actions/setup@v4
+        uses: snyk/actions/setup@v2  # Cambiado de v4 a v2
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
