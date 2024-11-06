@@ -27,14 +27,12 @@ jobs:
       # Step to generate SBOM with CycloneDX
       - name: Install CycloneDX CLI
         run: |
-          run: pip install cyclonedx-cli
+          pip install cyclonedx-bom
 
       - name: Generate SBOM with CycloneDX
         run: |
-          cyclonedx-cli -i requirements_cpu.txt -o sbom_cpu.json
-          cyclonedx-cli -i requirements_gpu.txt -o sbom_gpu.json
-          # Fusionar los SBOMs generados (si lo deseas) en un solo archivo
-          jq -s 'add' sbom_cpu.json sbom_gpu.json > sbom_combined.json
+          cyclonedx-py requirements requirements_gpu.txt -o sbom_gpu.json
+          cyclonedx-py requirements requirements_cpu.txt -o sbom_cpu.json
 
       - name: Upload SBOM as artifact
         uses: actions/upload-artifact@v3
