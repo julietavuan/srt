@@ -27,7 +27,7 @@ jobs:
       # Step to generate SBOM with CycloneDX
       - name: Install CycloneDX CLI
         run: |
-          npm install -g @cyclonedx/cyclonedx-cli
+          run: pip install cyclonedx-cli
 
       - name: Generate SBOM with CycloneDX
         run: |
