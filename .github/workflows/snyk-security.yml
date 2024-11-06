@@ -27,7 +27,7 @@ jobs:
       # Step to generate SBOM with CycloneDX
       - name: Install CycloneDX CLI
         run: |
-          curl -sL https://github.com/CycloneDX/cyclonedx-cli/releases/download/v1.6.0/cyclonedx-cli-linux-x64.tar.gz | tar -xz
+          curl -sL https://github.com/CycloneDX/cyclonedx-cli/archive/refs/tags/v0.27.1.tar.gz | tar -xz
           sudo mv cyclonedx-cli /usr/local/bin
 
       - name: Generate SBOM in CycloneDX format
