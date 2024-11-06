@@ -1,6 +1,8 @@
 name: Snyk Security
+
 env:
   SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 on:
   push:
@@ -17,12 +19,16 @@ jobs:
   snyk:
     runs-on: ubuntu-latest
     permissions:
-      contents: read # for actions/checkout to fetch code
-      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
-      actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
+      contents: read  # for actions/checkout to fetch code
+      security-events: write  # for github/codeql-action/upload-sarif to upload SARIF results
+      actions: read  # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
     steps:
       # Checkout the code from the repository
       - uses: actions/checkout@v4
+
+      # Install GitHub CLI (gh)
+      - name: Install GitHub CLI
+        run: sudo apt-get install gh
 
       # Step to generate SBOM with CycloneDX
       - name: Install CycloneDX CLI
@@ -53,13 +59,46 @@ jobs:
 
       # Run Snyk Open Source (SCA) test for requirements_cpu.txt
       - name: Run Snyk Open Source (SCA) test for requirements_cpu.txt
-        run: snyk test --file=requirements_cpu.txt --package-manager=pip
+        run: snyk test --file=requirements_cpu.txt --package-manager=pip --json > snyk-results.json
 
       # Run Snyk Open Source (SCA) test for requirements_gpu.txt
       - name: Run Snyk Open Source (SCA) test for requirements_gpu.txt
-        run: snyk test --file=requirements_gpu.txt --package-manager=pip
+        run: snyk test --file=requirements_gpu.txt --package-manager=pip --json >> snyk-results.json
 
-      # Run Snyk Code (SAST) to check for vulnerabilities and upload results to GitHub Security tab
+      # Check for critical/high vulnerabilities
+      - name: Check for critical/high vulnerabilities
+        id: check-vulnerabilities
+        run: |
+          CRITICAL=$(jq '.vulnerabilities | map(select(.severity == "high" or .severity == "critical")) | length' snyk-results.json)
+          if [ "$CRITICAL" -gt 0 ]; then
+            echo "Critical or High vulnerabilities detected. Creating PR for dependency update."
+          else
+            echo "No critical or high vulnerabilities detected."
+            exit 0
+          fi
+
+      # Update dependencies and create PR if vulnerabilities are found
+      - name: Update dependencies and create PR
+        if: success() && steps.check-vulnerabilities.outputs.CRITICAL != '0'
+        run: |
+          # Create a new branch for the update
+          git checkout -b update-dependencies
+
+          # Run Snyk wizard to automatically fix dependencies (or manually update the affected ones)
+          snyk wizard --file=requirements_cpu.txt --all-projects
+          snyk wizard --file=requirements_gpu.txt --all-projects
+
+          # Commit the changes (dependency updates)
+          git add requirements_cpu.txt requirements_gpu.txt
+          git commit -m "Automated update for critical/high vulnerabilities"
+
+          # Push changes to the new branch
+          git push origin update-dependencies
+
+          # Create a pull request using GitHub CLI
+          gh pr create --title "Automated Dependency Update" --body "This PR includes updates for dependencies with critical/high vulnerabilities." --base master --head update-dependencies --label "security"
+      
+      # Run Snyk Code to check for vulnerabilities and upload results to GitHub Security tab
       - name: Run Snyk Code to check for vulnerabilities
         run: snyk code test --sarif || exit 1
 
