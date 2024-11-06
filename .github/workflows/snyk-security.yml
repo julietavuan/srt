@@ -27,11 +27,14 @@ jobs:
       # Step to generate SBOM with CycloneDX
       - name: Install CycloneDX CLI
         run: |
-          curl -sL https://github.com/CycloneDX/cyclonedx-cli/archive/refs/tags/v0.27.1.tar.gz | tar -xz
-          sudo mv cyclonedx-cli /usr/local/bin
+          npm install -g @cyclonedx/cyclonedx-cli
 
-      - name: Generate SBOM in CycloneDX format
-        run: cyclonedx-cli --output sbom.json --format json --project "MyProject" --file requirements.txt
+      - name: Generate SBOM with CycloneDX
+        run: |
+          cyclonedx-cli -i requirements_cpu.txt -o sbom_cpu.json
+          cyclonedx-cli -i requirements_gpu.txt -o sbom_gpu.json
+          # Fusionar los SBOMs generados (si lo deseas) en un solo archivo
+          jq -s 'add' sbom_cpu.json sbom_gpu.json > sbom_combined.json
 
       - name: Upload SBOM as artifact
         uses: actions/upload-artifact@v3
