@@ -1,5 +1,7 @@
 name: Snyk Security
-
+env:
+  SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+  
 on:
   push:
     branches: ["master"]
