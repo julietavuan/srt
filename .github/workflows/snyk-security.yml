@@ -22,11 +22,10 @@ jobs:
       # Checkout the code from the repository
       - uses: actions/checkout@v4
 
-      # Set up Snyk CLI to check for security issues
-      - name: Set up Snyk CLI to check for security issues
-        uses: snyk/actions/setup@v2  # Cambiado de v4 a v2
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      # Install Snyk CLI manually
+      - name: Install Snyk CLI
+        run: |
+          npm install -g snyk
 
       # Install dependencies
       - name: Install dependencies
@@ -34,18 +33,19 @@ jobs:
           pip install -r requirements_cpu.txt
           pip install -r requirements_gpu.txt
 
-      # Run Snyk Open Source analysis (SCA) for the dependencies in requirements_cpu.txt and requirements_gpu.txt
+      # Run Snyk Open Source (SCA) test for requirements_cpu.txt
       - name: Run Snyk Open Source (SCA) test for requirements_cpu.txt
         run: snyk test --file=requirements_cpu.txt --package-manager=pip
 
+      # Run Snyk Open Source (SCA) test for requirements_gpu.txt
       - name: Run Snyk Open Source (SCA) test for requirements_gpu.txt
         run: snyk test --file=requirements_gpu.txt --package-manager=pip
 
-      # Run Snyk Code (SAST) to check for vulnerabilities in the code and upload results to GitHub Security tab
+      # Run Snyk Code (SAST) to check for vulnerabilities and upload results to GitHub Security tab
       - name: Run Snyk Code to check for vulnerabilities
         run: snyk code test --sarif || exit 1
 
-      # Monitor the project for Snyk Open Source vulnerabilities and track them
+      # Monitor the project for Snyk Open Source vulnerabilities
       - name: Snyk Open Source monitor
         run: snyk monitor --all-projects
 
