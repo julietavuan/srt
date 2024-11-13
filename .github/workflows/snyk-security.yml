@@ -124,15 +124,15 @@ jobs:
         with:
           sarif_file: snyk-code.sarif
 
-  # Add a new job for Scorecards
-  scorecards:
+   # Add a new job for Scorecards
+   scorecards:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
       - name: Run Scorecards
-        uses: ossf/scorecard-action@v2
+        uses: ossf/scorecard-action@v1.0.11
         with:
           results_file: scorecards-results.sarif  # Output SARIF for GitHub Code Scanning
 
