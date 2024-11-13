@@ -124,8 +124,8 @@ jobs:
         with:
           sarif_file: snyk-code.sarif
 
-   # Add a new job for Scorecards
-   scorecards:
+  # Add a new job for Scorecards
+  scorecards:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
