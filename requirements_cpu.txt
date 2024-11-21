@@ -1,7 +1,7 @@
 -e .
 -e MyRecbole
 fda
-torch==2.0.0
+torch==2.2.0
 tqdm~=4.65.0
 protobuf<3.21
 mlflow==2.3.0
