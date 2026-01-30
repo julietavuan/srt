@@ -10,5 +10,5 @@ faiss-cpu==1.7.2
 pynvml==11.5.0
 frozendict==2.4.4
 mmh3==4.1.0
-sentencepiece==0.2.0
+sentencepiece==0.2.1
 typing_extensions==4.12.2
